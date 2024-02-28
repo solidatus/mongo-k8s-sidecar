@@ -1,11 +1,10 @@
-var Db = require('mongodb').Db;
-var MongoServer = require('mongodb').Server;
+var MongoClient = require('mongodb').MongoClient;
 var async = require('async');
 var config = require('./config');
 
 var localhost = '127.0.0.1'; //Can access mongo as localhost from a sidecar
 
-var getDb = function(host, done) {
+var getDb = function(host, done, returnClientAndDb) {
   //If they called without host like getDb(function(err, db) { ... });
   if (arguments.length === 1) {
     if (typeof arguments[0] === 'function') {
@@ -27,25 +26,20 @@ var getDb = function(host, done) {
     }
   }
 
-  var mongoDb = new Db(config.database, new MongoServer(host, config.mongoPort, mongoOptions));
+  var connectionURI;
+  if (config.username) {
+    connectionURI = `mongodb://${encodeURIComponent(config.username)}:${encodeURIComponent(config.password)}@${host}:${config.mongoPort}/${config.database}`;
+  } else {
+    connectionURI = `mongodb://${host}:${config.mongoPort}/${config.database}`;
+  }
 
-  mongoDb.open(function (err, db) {
+  MongoClient.connect(connectionURI, mongoOptions, function(err, client) {
     if (err) {
       return done(err);
     }
 
-    if(config.username) {
-        mongoDb.authenticate(config.username, config.password, function(err, result) {
-            if (err) {
-              return done(err);
-            }
-
-            return done(null, db);
-        });
-    } else {
-      return done(null, db);
-    }
-
+    var db = client.db(config.database)
+    return done(null, returnClientAndDb ? { client, db } : db);
   });
 };
 
@@ -191,13 +185,13 @@ var removeDeadMembers = function(rsConfig, addrsToRemove) {
 };
 
 var isInReplSet = function(ip, done) {
-  getDb(ip, function(err, db) {
+  getDb(ip, function(err, clientAndDb) {
     if (err) {
       return done(err);
     }
 
-    replSetGetConfig(db, function(err, rsConfig) {
-      db.close();
+    replSetGetConfig(clientAndDb.db, function(err, rsConfig) {
+      clientAndDb.client.close();
       if (!err && rsConfig) {
         done(null, true);
       }
@@ -205,7 +199,7 @@ var isInReplSet = function(ip, done) {
         done(null, false);
       }
     });
-  });
+  }, true);
 };
 
 module.exports = {
