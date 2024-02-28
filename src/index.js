@@ -1,6 +1,6 @@
 var worker = require('./lib/worker');
 
-console.log('Starting up mongo-k8s-sidecar');
+console.log('Starting up mongo-k8s-sidecar @ 0.1.1');
 
 worker.init(function(err) {
   if (err) {
