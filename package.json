@@ -33,7 +33,9 @@
     "ip": "^0.3.2",
     "moment": "^2.10.2",
     "mongodb": "^3.7.4",
-    "node-kubernetes-client": "^0.2.2",
+    "node-kubernetes-client": "^0.2.2"
+  },
+  "devDependencies": {
     "npm": "^7.24.2"
   }
 }
