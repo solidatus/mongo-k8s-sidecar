@@ -74,7 +74,7 @@ var replSetGetStatus = function(db, done) {
 };
 
 var initReplSet = function(db, hostIpAndPort, done) {
-  log('initReplSet', hostIpAndPort);
+  log.log(`initReplSet: ${hostIpAndPort}`);
 
   db.admin().command({ replSetInitiate: {} }, {}, function (err) {
     if (err) {
@@ -87,7 +87,7 @@ var initReplSet = function(db, hostIpAndPort, done) {
         return done(err);
       }
 
-      log('initial rsConfig is', rsConfig);
+      log.log(`initial rsConfig is: ${rsConfig}`);
       rsConfig.configsvr = config.isConfigRS;
       rsConfig.members[0].host = hostIpAndPort;
       async.retry({times: 20, interval: 500}, function(callback) {
@@ -104,7 +104,7 @@ var initReplSet = function(db, hostIpAndPort, done) {
 };
 
 var replSetReconfig = function(db, rsConfig, force, done) {
-  log('replSetReconfig', rsConfig);
+  log.log(`replSetReconfig: ${rsConfig}`);
 
   rsConfig.version++;
 
@@ -160,7 +160,7 @@ var addNewMembers = function(rsConfig, addrsToAdd) {
     for (var j in rsConfig.members) {
       var member = rsConfig.members[j];
       if (member.host === addrToAdd) {
-        log("Host [%s] already exists in the Replicaset. Not adding...", addrToAdd);
+        log.log(`Host [${addrToAdd}] already exists in the Replicaset. Not adding...`);
         exists = true;
         break;
       }

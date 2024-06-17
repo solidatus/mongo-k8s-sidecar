@@ -92,7 +92,7 @@ var workloop = function workloop() {
 
 var finish = function(err, db) {
   if (err) {
-    console.error('Error in workloop', err);
+    log.error('Error in workloop', err);
   }
 
   if (db && db.close) {
@@ -123,7 +123,7 @@ var inReplicaSet = function(db, pods, status, done) {
   }
 
   if (!primaryExists && podElection(pods)) {
-    log('Pod has been elected as a secondary to do primary work');
+    log.log('Pod has been elected as a secondary to do primary work');
     return primaryWork(db, pods, members, true, done);
   }
 
@@ -137,8 +137,8 @@ var primaryWork = function(db, pods, members, shouldForce, done) {
   var addrToRemove = addrToRemoveLoop(members);
 
   if (addrToAdd.length || addrToRemove.length) {
-    log('Addresses to add:    ', addrToAdd);
-    log('Addresses to remove: ', addrToRemove);
+    log.log(`Addresses to add:    ${addrToAdd}`);
+    log.log(`Addresses to remove: ${addrToRemove}`);
 
     mongo.addNewReplSetMembers(db, addrToAdd, addrToRemove, shouldForce, done);
     return;
@@ -177,7 +177,7 @@ var notInReplicaSet = function(db, pods, done) {
     }
 
     if (podElection(pods)) {
-      log('Pod has been elected for replica set initialization');
+      log.log('Pod has been elected for replica set initialization');
       var primary = pods[0]; // After the sort election, the 0-th pod should be the primary.
       var primaryStableNetworkAddressAndPort = getPodStableNetworkAddressAndPort(primary);
       // Prefer the stable network ID over the pod IP, if present.
@@ -199,13 +199,13 @@ var invalidReplicaSet = function(db, pods, status, done) {
     members = status.members;
   }
 
-  log("Invalid replica set");
+  log.log("Invalid replica set");
   if (!podElection(pods)) {
-    log("Didn't win the pod election, doing nothing");
+    log.log("Didn't win the pod election, doing nothing");
     return done();
   }
 
-  log("Won the pod election, forcing re-initialization");
+  log.log("Won the pod election, forcing re-initialization");
   var addrToAdd = addrToAddLoop(pods, members);
   var addrToRemove = addrToRemoveLoop(members);
 
