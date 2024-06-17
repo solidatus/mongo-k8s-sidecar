@@ -1,6 +1,6 @@
 {
   "name": "mongo-k8s-sidecar",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Kubernetes sidecar for mongo",
   "main": "src/index.js",
   "scripts": {
