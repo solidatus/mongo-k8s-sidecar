@@ -6,6 +6,7 @@ var async = require('async');
 var moment = require('moment');
 var dns = require('dns');
 var os = require('os');
+var log = require('./log');
 
 var loopSleepSeconds = config.loopSleepSeconds;
 var unhealthySeconds = config.unhealthySeconds;
@@ -122,7 +123,7 @@ var inReplicaSet = function(db, pods, status, done) {
   }
 
   if (!primaryExists && podElection(pods)) {
-    console.log('Pod has been elected as a secondary to do primary work');
+    log('Pod has been elected as a secondary to do primary work');
     return primaryWork(db, pods, members, true, done);
   }
 
@@ -136,8 +137,8 @@ var primaryWork = function(db, pods, members, shouldForce, done) {
   var addrToRemove = addrToRemoveLoop(members);
 
   if (addrToAdd.length || addrToRemove.length) {
-    console.log('Addresses to add:    ', addrToAdd);
-    console.log('Addresses to remove: ', addrToRemove);
+    log('Addresses to add:    ', addrToAdd);
+    log('Addresses to remove: ', addrToRemove);
 
     mongo.addNewReplSetMembers(db, addrToAdd, addrToRemove, shouldForce, done);
     return;
@@ -176,7 +177,7 @@ var notInReplicaSet = function(db, pods, done) {
     }
 
     if (podElection(pods)) {
-      console.log('Pod has been elected for replica set initialization');
+      log('Pod has been elected for replica set initialization');
       var primary = pods[0]; // After the sort election, the 0-th pod should be the primary.
       var primaryStableNetworkAddressAndPort = getPodStableNetworkAddressAndPort(primary);
       // Prefer the stable network ID over the pod IP, if present.
@@ -198,13 +199,13 @@ var invalidReplicaSet = function(db, pods, status, done) {
     members = status.members;
   }
 
-  console.log("Invalid replica set");
+  log("Invalid replica set");
   if (!podElection(pods)) {
-    console.log("Didn't win the pod election, doing nothing");
+    log("Didn't win the pod election, doing nothing");
     return done();
   }
 
-  console.log("Won the pod election, forcing re-initialization");
+  log("Won the pod election, forcing re-initialization");
   var addrToAdd = addrToAddLoop(pods, members);
   var addrToRemove = addrToRemoveLoop(members);
 
