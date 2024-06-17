@@ -4,7 +4,13 @@ var config = require('./config');
 
 var localhost = '127.0.0.1'; //Can access mongo as localhost from a sidecar
 
+var MONGO_CACHE = null
+
 var getDb = function(host, done, returnClientAndDb) {
+  if (MONGO_CACHE !== null) {
+    return done(null, returnClientAndDb ? MONGO_CACHE : MONGO_CACHE.db);
+  }
+
   //If they called without host like getDb(function(err, db) { ... });
   if (arguments.length === 1) {
     if (typeof arguments[0] === 'function') {
@@ -39,7 +45,10 @@ var getDb = function(host, done, returnClientAndDb) {
     }
 
     var db = client.db(config.database)
-    return done(null, returnClientAndDb ? { client, db } : db);
+
+    MONGO_CACHE = { client, db }
+    
+    return done(null, returnClientAndDb ? MONGO_CACHE : MONGO_CACHE.db);
   });
 };
 
