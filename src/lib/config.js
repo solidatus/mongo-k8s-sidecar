@@ -48,20 +48,20 @@ var verifyCorrectnessOfDomain = function(clusterDomain) {
 
   var servers = dns.getServers();
   if (!servers || !servers.length) {
-    log.log(`dns.getServers() didn't return any results when verifying the cluster domain '${clusterDomain}'.`);
+    log.log("dns.getServers() didn't return any results when verifying the cluster domain '%s'.", clusterDomain);
     return;
   }
 
   // In the case that we can resolve the DNS servers, we get the first and try to retrieve its host.
   dns.reverse(servers[0], function(err, host) {
     if (err) {
-      log.warn(`Error occurred trying to verify the cluster domain '${clusterDomain}'`);
+      log.warn("Error occurred trying to verify the cluster domain '%s'",  clusterDomain);
     }
     else if (host.length < 1 || !host[0].endsWith(clusterDomain)) {
-      log.warn(`Possibly wrong cluster domain name! Detected '${clusterDomain}' but expected similar to '${host}'`);
+      log.warn("Possibly wrong cluster domain name! Detected '%s' but expected similar to '%s'",  clusterDomain, host);
     }
     else {
-      log.log(`The cluster domain '${clusterDomain}' was successfully verified.`);
+      log.log("The cluster domain '%s' was successfully verified.", clusterDomain);
     }
   });
 };
@@ -78,7 +78,7 @@ var getK8sMongoServiceName = function() {
  */
 var getMongoDbPort = function() {
   var mongoPort = process.env.MONGO_PORT || 27017;
-  log.log(`Using mongo port: ${mongoPort}`, );
+  log.log("Using mongo port: %s", mongoPort);
   return mongoPort;
 };
 

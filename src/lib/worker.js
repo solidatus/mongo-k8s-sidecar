@@ -137,8 +137,8 @@ var primaryWork = function(db, pods, members, shouldForce, done) {
   var addrToRemove = addrToRemoveLoop(members);
 
   if (addrToAdd.length || addrToRemove.length) {
-    log.log(`Addresses to add:    ${addrToAdd}`);
-    log.log(`Addresses to remove: ${addrToRemove}`);
+    log.log('Addresses to add:    ', addrToAdd);
+    log.log('Addresses to remove: ', addrToRemove);
 
     mongo.addNewReplSetMembers(db, addrToAdd, addrToRemove, shouldForce, done);
     return;
