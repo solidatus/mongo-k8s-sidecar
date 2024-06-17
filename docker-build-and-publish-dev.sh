@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION=$(npm pkg get version | tr -d '"')
+VERSION=$(npx npm pkg get version | tr -d '"')
 IMAGE_NAME=docker.solidatus.com/infrastructure-dev/mongo-k8s-sidecar:$VERSION
 echo $IMAGE_NAME
 

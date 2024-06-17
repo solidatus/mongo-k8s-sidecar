@@ -27,10 +27,7 @@
     "url": "https://github.com/cvallance/mongo-k8s-sidecar/issues"
   },
   "homepage": "https://github.com/cvallance/mongo-k8s-sidecar",
-  "devDependencies": {
-    "chai": "^2.3.0",
-    "mocha": "^2.2.4"
-  },
+  "devDependencies": {},
   "dependencies": {
     "async": "^1.5.0",
     "forever": "^0.14.1",
@@ -38,6 +35,6 @@
     "moment": "^2.10.2",
     "mongodb": "^3.7.4",
     "node-kubernetes-client": "^0.2.2",
-    "pem": "^1.9.4"
+    "npm": "^7.24.2"
   }
 }
