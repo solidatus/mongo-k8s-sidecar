@@ -1,11 +1,13 @@
-var Db = require('mongodb').Db;
-var MongoServer = require('mongodb').Server;
+var MongoClient = require('mongodb').MongoClient;
 var async = require('async');
 var config = require('./config');
+var log = require('./log');
 
 var localhost = '127.0.0.1'; //Can access mongo as localhost from a sidecar
 
-var getDb = function(host, done) {
+var MONGO_CACHE = null
+
+var getDb = function(host, done, returnClientAndDb) {
   //If they called without host like getDb(function(err, db) { ... });
   if (arguments.length === 1) {
     if (typeof arguments[0] === 'function') {
@@ -14,6 +16,10 @@ var getDb = function(host, done) {
     } else {
       throw new Error('getDb illegal invocation. User either getDb(\'options\', function(err, db) { ... }) OR getDb(function(err, db) { ... })');
     }
+  }
+
+  if (MONGO_CACHE !== null) {
+    return done(null, returnClientAndDb ? MONGO_CACHE : MONGO_CACHE.db);
   }
 
   var mongoOptions = {};
@@ -27,25 +33,23 @@ var getDb = function(host, done) {
     }
   }
 
-  var mongoDb = new Db(config.database, new MongoServer(host, config.mongoPort, mongoOptions));
+  var connectionURI;
+  if (config.username) {
+    connectionURI = `mongodb://${encodeURIComponent(config.username)}:${encodeURIComponent(config.password)}@${host}:${config.mongoPort}/${config.database}`;
+  } else {
+    connectionURI = `mongodb://${host}:${config.mongoPort}/${config.database}`;
+  }
 
-  mongoDb.open(function (err, db) {
+  MongoClient.connect(connectionURI, mongoOptions, function(err, client) {
     if (err) {
       return done(err);
     }
 
-    if(config.username) {
-        mongoDb.authenticate(config.username, config.password, function(err, result) {
-            if (err) {
-              return done(err);
-            }
+    var db = client.db(config.database)
 
-            return done(null, db);
-        });
-    } else {
-      return done(null, db);
-    }
-
+    MONGO_CACHE = { client, db }
+    
+    return done(null, returnClientAndDb ? MONGO_CACHE : MONGO_CACHE.db);
   });
 };
 
@@ -70,7 +74,7 @@ var replSetGetStatus = function(db, done) {
 };
 
 var initReplSet = function(db, hostIpAndPort, done) {
-  console.log('initReplSet', hostIpAndPort);
+  log.log('initReplSet', hostIpAndPort);
 
   db.admin().command({ replSetInitiate: {} }, {}, function (err) {
     if (err) {
@@ -83,7 +87,7 @@ var initReplSet = function(db, hostIpAndPort, done) {
         return done(err);
       }
 
-      console.log('initial rsConfig is', rsConfig);
+      log.log('initial rsConfig is', rsConfig);
       rsConfig.configsvr = config.isConfigRS;
       rsConfig.members[0].host = hostIpAndPort;
       async.retry({times: 20, interval: 500}, function(callback) {
@@ -100,7 +104,7 @@ var initReplSet = function(db, hostIpAndPort, done) {
 };
 
 var replSetReconfig = function(db, rsConfig, force, done) {
-  console.log('replSetReconfig', rsConfig);
+  log.log('replSetReconfig', rsConfig);
 
   rsConfig.version++;
 
@@ -156,7 +160,7 @@ var addNewMembers = function(rsConfig, addrsToAdd) {
     for (var j in rsConfig.members) {
       var member = rsConfig.members[j];
       if (member.host === addrToAdd) {
-        console.log("Host [%s] already exists in the Replicaset. Not adding...", addrToAdd);
+        log.log("Host [%s] already exists in the Replicaset. Not adding...", addrToAdd);
         exists = true;
         break;
       }
@@ -191,13 +195,13 @@ var removeDeadMembers = function(rsConfig, addrsToRemove) {
 };
 
 var isInReplSet = function(ip, done) {
-  getDb(ip, function(err, db) {
+  getDb(ip, function(err, clientAndDb) {
     if (err) {
       return done(err);
     }
 
-    replSetGetConfig(db, function(err, rsConfig) {
-      db.close();
+    replSetGetConfig(clientAndDb.db, function(err, rsConfig) {
+      clientAndDb.client.close();
       if (!err && rsConfig) {
         done(null, true);
       }
@@ -205,7 +209,7 @@ var isInReplSet = function(ip, done) {
         done(null, false);
       }
     });
-  });
+  }, true);
 };
 
 module.exports = {

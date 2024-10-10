@@ -1,10 +1,11 @@
-FROM node:11-alpine
+FROM node:12-alpine
 
 WORKDIR /opt/cvallance/mongo-k8s-sidecar
 
 COPY package.json /opt/cvallance/mongo-k8s-sidecar/package.json
+COPY package-lock.json /opt/cvallance/mongo-k8s-sidecar/package-lock.json
 
-RUN npm install
+RUN npm install --production
 
 COPY .foreverignore /opt/cvallance/.foreverignore
 COPY ./src /opt/cvallance/mongo-k8s-sidecar/src
