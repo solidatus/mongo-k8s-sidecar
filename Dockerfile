@@ -1,13 +1,15 @@
-FROM node:12-alpine
+FROM node:22-alpine AS build
+WORKDIR /app
 
-WORKDIR /opt/cvallance/mongo-k8s-sidecar
+COPY . .
+RUN npm install
+RUN npm run build
 
-COPY package.json /opt/cvallance/mongo-k8s-sidecar/package.json
-COPY package-lock.json /opt/cvallance/mongo-k8s-sidecar/package-lock.json
+FROM node:22-alpine AS production
+WORKDIR /app
 
-RUN npm install --production
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/package.json /app/package-lock.json ./
 
-COPY .foreverignore /opt/cvallance/.foreverignore
-COPY ./src /opt/cvallance/mongo-k8s-sidecar/src
-
-CMD ["npm", "start"]
+RUN npm install --omit=dev
+CMD ["npm", "run", "start"]
