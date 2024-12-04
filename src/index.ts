@@ -1,6 +1,6 @@
 import chalk from "chalk";
 
-import packageJson from '../package.json'
+import packageJson from "../package.json";
 import { config } from "./config";
 import { log } from "./log";
 import { sleep } from "./utils";

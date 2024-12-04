@@ -1,5 +1,6 @@
 import pluginJs from "@eslint/js";
 import perfectionist from "eslint-plugin-perfectionist";
+import prettier from "eslint-plugin-prettier/recommended";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
@@ -26,4 +27,5 @@ export default [
       ],
     },
   },
+  prettier,
 ];
