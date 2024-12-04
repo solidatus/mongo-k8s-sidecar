@@ -18,7 +18,8 @@
 
     "strict": true,
 
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "resolveJsonModule": true
   },
   "exclude": ["node_modules", "dist"]
 }

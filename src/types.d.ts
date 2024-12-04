@@ -1,8 +1,8 @@
 type ReplSetConfig = {
   _id: string;
-  version: number;
   configsvr: boolean;
   members: ReplSetConfigMember[];
+  version: number;
 };
 
 type ReplSetConfigMember = {
@@ -10,11 +10,7 @@ type ReplSetConfigMember = {
   host: string;
 };
 
-type ReplSetStatus = {
-  set: string;
-  members: ReplSetStatusMember[];
-};
-
+/* eslint-disable perfectionist/sort-union-types */
 type ReplSetMemberState =
   | "STARTUP"
   | "PRIMARY"
@@ -27,15 +23,21 @@ type ReplSetMemberState =
   | "ROLLBACK"
   | "REMOVED"
   | "RS_ERROR";
+/* eslint-enable perfectionist/sort-union-types */
+
+type ReplSetStatus = {
+  members: ReplSetStatusMember[];
+  set: string;
+};
 
 type ReplSetStatusMember = {
   _id: number;
-  name: string;
   health: number;
+  lastHeartbeatRecv?: Date;
+  name: string;
+  self: boolean;
   state: number;
   stateStr: ReplSetMemberState;
-  lastHeartbeatRecv?: Date;
-  self: boolean;
 };
 
 export { ReplSetConfig, ReplSetConfigMember, ReplSetStatus, ReplSetStatusMember };

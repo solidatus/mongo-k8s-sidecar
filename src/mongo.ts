@@ -1,8 +1,8 @@
 import { Db, MongoClient } from "mongodb";
 
 import { config } from "./config";
-import { ReplSetConfig, ReplSetStatus } from "./types";
 import { log } from "./log";
+import { ReplSetConfig, ReplSetStatus } from "./types";
 import { range, sleep } from "./utils";
 
 const getDb = async (host: string = "127.0.0.1"): Promise<Db> => {
@@ -15,10 +15,10 @@ const getDb = async (host: string = "127.0.0.1"): Promise<Db> => {
     : `mongodb://${host}:${mongoConfig.port}`;
 
   const client = new MongoClient(uri, {
+    directConnection: true,
     tls: mongoConfig.tls,
     tlsAllowInvalidCertificates: mongoConfig.tlsAllowInvalidCertificates,
     tlsAllowInvalidHostnames: mongoConfig.tlsAllowInvalidHostnames,
-    directConnection: true,
   });
   const db = client.db(mongoConfig.database);
   return db;
@@ -36,7 +36,7 @@ const replSetReconfig = async (db: Db, rsConfig: ReplSetConfig, force: boolean =
   log.info("replSetReconfig", rsConfig);
   rsConfig.version++;
 
-  await db.admin().command({ replSetReconfig: rsConfig, force: force });
+  await db.admin().command({ force: force, replSetReconfig: rsConfig });
 };
 
 const initReplSet = async (db: Db, host: string): Promise<void> => {
@@ -129,9 +129,9 @@ const isInReplSet = async (ip: string): Promise<boolean> => {
   try {
     const rsConfig = await replSetGetConfig(db);
     return !!rsConfig;
-  } catch (err) {
+  } catch {
     return false;
   }
 };
 
-export { getDb, replSetGetStatus, initReplSet, addNewReplSetMembers, isInReplSet };
+export { addNewReplSetMembers, getDb, initReplSet, isInReplSet, replSetGetStatus };

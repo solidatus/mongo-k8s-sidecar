@@ -1,13 +1,13 @@
 import { V1Pod } from "@kubernetes/client-node";
-import { Db, MongoServerError } from "mongodb";
 import ip from "ip";
+import { Db, MongoServerError } from "mongodb";
 
+import { config } from "./config";
+import { getMongoPods } from "./k8s";
+import { log } from "./log";
+import { addNewReplSetMembers, getDb, initReplSet, isInReplSet, replSetGetStatus } from "./mongo";
 import { ReplSetStatus, ReplSetStatusMember } from "./types";
 import { getLocalIp, getPodFqdn, getPodIp } from "./utils";
-import { log } from "./log";
-import { config } from "./config";
-import { addNewReplSetMembers, getDb, initReplSet, isInReplSet, replSetGetStatus } from "./mongo";
-import { getMongoPods } from "./k8s";
 
 let hostIp: string | undefined;
 let hostIpAndPort: string | undefined;
@@ -134,7 +134,7 @@ const invalidReplicaSet = async (db: Db, pods: V1Pod[], status: ReplSetStatus): 
 const podElection = (pods: V1Pod[]): boolean => {
   pods.sort((a, b) => {
     const aIp = a.status?.podIP;
-    const bIp = a.status?.podIP;
+    const bIp = b.status?.podIP;
     if (!aIp || !bIp) {
       return 0;
     }

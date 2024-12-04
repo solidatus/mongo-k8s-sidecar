@@ -1,12 +1,29 @@
 import pluginJs from "@eslint/js";
+import perfectionist from "eslint-plugin-perfectionist";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
-/** @type {import('eslint').Linter.Config[]} */
 export default [
   { files: ["**/*.{js,mjs,cjs,ts}"] },
   { languageOptions: { globals: globals.browser } },
   { ignores: ["**/node_modules/", "dist/"] },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
+  perfectionist.configs["recommended-natural"],
+  {
+    rules: {
+      "perfectionist/sort-imports": [
+        "error",
+        {
+          groups: [["builtin", "external"], ["internal", "parent", "sibling"], "type"],
+        },
+      ],
+      "perfectionist/sort-interfaces": [
+        "error",
+        {
+          partitionByNewLine: true,
+        },
+      ],
+    },
+  },
 ];
