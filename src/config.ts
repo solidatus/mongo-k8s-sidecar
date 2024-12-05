@@ -16,11 +16,12 @@ interface MongoAuthConfig {
   username: string;
 
   password: string;
+
+  database?: string;
 }
 
 interface MongoConfig {
   auth?: MongoAuthConfig;
-  database: string;
   port: number;
 
   tls?: boolean;
@@ -36,9 +37,10 @@ interface MongoConfig {
 const loadMongoAuthConfig = (): MongoAuthConfig | undefined => {
   const username = process.env.MONGODB_USERNAME;
   const password = process.env.MONGODB_PASSWORD;
+  const database = process.env.MONGODB_AUTHDB;
 
   if (username && password) {
-    return { password, username };
+    return { database, password, username };
   }
 
   return undefined;
@@ -65,7 +67,6 @@ const loadConfig = (): Config => {
     },
     mongo: {
       auth: loadMongoAuthConfig(),
-      database: process.env.MONGODB_DATABASE || "local",
       isConfigSvr: isConfigRS(),
 
       loopSleepSeconds: parseInt(process.env.MONGODB_LOOP_SLEEP_SECONDS || "5"),

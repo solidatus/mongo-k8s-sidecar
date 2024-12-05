@@ -25,6 +25,12 @@ export default [
           partitionByNewLine: true,
         },
       ],
+      "perfectionist/sort-object-types": [
+        "error",
+        {
+          partitionByNewLine: true,
+        },
+      ],
     },
   },
   prettier,

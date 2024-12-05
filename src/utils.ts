@@ -5,7 +5,7 @@ import { config } from "./config";
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
-const range = (start: number, end: number) => Array.from({ length: end - start }, (_, i) => i + start);
+const range = (start: number, end: number): number[] => Array.from({ length: end - start }, (_, i) => i + start);
 
 const getLocalIp = (): string | undefined => {
   const interfaces = os.networkInterfaces();

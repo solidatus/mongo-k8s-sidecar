@@ -9,10 +9,13 @@ const getDb = async (host: string = "127.0.0.1"): Promise<Db> => {
   const mongoConfig = config.mongo;
   const authConfig = mongoConfig.auth;
 
-  const uri =
+  let uri =
     authConfig ?
       `mongodb://${encodeURIComponent(authConfig.username)}:${encodeURIComponent(authConfig.password)}@${host}:${mongoConfig.port}`
     : `mongodb://${host}:${mongoConfig.port}`;
+  if (authConfig?.database) {
+    uri += `/${authConfig.database}`;
+  }
 
   const client = new MongoClient(uri, {
     directConnection: true,
@@ -20,7 +23,11 @@ const getDb = async (host: string = "127.0.0.1"): Promise<Db> => {
     tlsAllowInvalidCertificates: mongoConfig.tlsAllowInvalidCertificates,
     tlsAllowInvalidHostnames: mongoConfig.tlsAllowInvalidHostnames,
   });
-  const db = client.db(mongoConfig.database);
+
+  // test the connection
+  await client.connect();
+
+  const db = client.db();
   return db;
 };
 
@@ -36,7 +43,9 @@ const replSetReconfig = async (db: Db, rsConfig: ReplSetConfig, force: boolean =
   log.info("replSetReconfig", rsConfig);
   rsConfig.version++;
 
-  await db.admin().command({ force: force, replSetReconfig: rsConfig });
+  // MongoDB gets fussy if the command name (replSetReconfig) is not the first key in the object
+  // eslint-disable-next-line perfectionist/sort-objects
+  await db.admin().command({ replSetReconfig: rsConfig, force: force });
 };
 
 const initReplSet = async (db: Db, host: string): Promise<void> => {
