@@ -1,0 +1,6 @@
+{
+  "printWidth": 120,
+  "experimentalTernaries": true,
+  "trailingComma": "all",
+  "bracketSameLine": true
+}
