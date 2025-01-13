@@ -7,6 +7,7 @@ interface Config {
 
 interface KubeConfig {
   clusterDomain: string;
+  clusterSkipTLSVerify: boolean;
   labelSelector: string;
   mongoServiceName: string;
   namespace: string;
@@ -61,6 +62,7 @@ const loadConfig = (): Config => {
   return {
     kube: {
       clusterDomain: process.env.KUBE_CLUSTER_DOMAIN || "cluster.local",
+      clusterSkipTLSVerify: process.env.KUBE_CLUSTER_SKIP_TLS_VERIFY === "true",
       labelSelector: process.env.MONGO_SIDECAR_POD_LABELS || "app=solidatus-db",
       mongoServiceName: process.env.KUBE_MONGO_SERVICE_NAME || "db",
       namespace: process.env.KUBE_NAMESPACE || "default",
