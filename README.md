@@ -23,8 +23,9 @@ There you will also find some helper scripts to test out creating the replica se
 | MONGO_SIDECAR_UNHEALTHY_SECONDS | NO | 15 | This is how many seconds a replica set member has to get healthy before automatically being removed from the replica set. |
 | MONGO_PORT | NO | 27017 | Configures the mongo port, allows the usage of non-standard ports. |
 | CONFIG_SVR | NO | false | Configures the [configsvr](https://docs.mongodb.com/manual/reference/replica-configuration/#rsconf.configsvr) variable when initializing the replicaset. |
-| KUBERNETES_MONGO_SERVICE_NAME | NO |  | This should point to the MongoDB Kubernetes (headless) service that identifies all the pods. It is used for setting up the DNS configuration for the mongo pods, instead of the default pod IPs. Works only with the StatefulSets' stable network ID. |
-| KUBERNETES_CLUSTER_DOMAIN | NO | cluster.local | This allows the specification of a custom cluster domain name. Used for the creation of a stable network ID of the k8s Mongo   pods. An example could be: "kube.local". |
+| KUBE_MONGO_SERVICE_NAME | NO |  | This should point to the MongoDB Kubernetes (headless) service that identifies all the pods. It is used for setting up the DNS configuration for the mongo pods, instead of the default pod IPs. Works only with the StatefulSets' stable network ID. |
+| KUBE_CLUSTER_DOMAIN | NO | cluster.local | This allows the specification of a custom cluster domain name. Used for the creation of a stable network ID of the k8s Mongo   pods. An example could be: "kube.local". |
+| KUBE_CLUSTER_SKIP_TLS_VERIFY | NO | false | If `true`, the k8s server's certificate will not be checked for validity. |
 | MONGODB_USERNAME | NO | | Configures the mongo username for authentication |
 | MONGODB_PASSWORD | NO | | Configures the mongo password for authentication |
 | MONGODB_DATABASE | NO | local | Configures the mongo authentication database |
@@ -48,7 +49,7 @@ In its default configuration the sidecar uses the pods' IPs for the MongodDB rep
    ...} ]
 ```
 
-If you want to use the StatefulSets' stable network ID, you have to make sure that you have the `KUBERNETES_MONGO_SERVICE_NAME`
+If you want to use the StatefulSets' stable network ID, you have to make sure that you have the `KUBE_MONGO_SERVICE_NAME`
 environmental variable set. Then the MongoDB replica set node names could look like this:
 ```
 [ { _id: 1,
@@ -73,7 +74,7 @@ Read more about the stable network IDs
 
 An example for a stable network pod ID looks like this:
 `$(statefulset name)-$(ordinal).$(service name).$(namespace).svc.cluster.local`.
-The `statefulset name` + the `ordinal` form the pod name, the `service name` is passed via `KUBERNETES_MONGO_SERVICE_NAME`,
+The `statefulset name` + the `ordinal` form the pod name, the `service name` is passed via `KUBE_MONGO_SERVICE_NAME`,
 the namespace is extracted from the pod metadata and the rest is static.
 
 A thing to consider when running a cluster with the mongo-k8s-sidecar is that it will prefer the stateful set stable
