@@ -53,9 +53,7 @@ const workloop = async (): Promise<void> => {
       }
     }
   } catch (err) {
-    if (err instanceof Error) {
-      log.error(err.message);
-    }
+    log.error("Error in worker workloop", err);
   }
 };
 
