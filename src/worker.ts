@@ -43,8 +43,7 @@ const workloop = async (): Promise<void> => {
         if (err.code === 94) {
           await notInReplicaSet(db, runningPods);
         } else if (err.code === 93) {
-          const status = await replSetGetStatus(db);
-          await invalidReplicaSet(db, runningPods, status);
+          await invalidReplicaSet(db, runningPods);
         } else {
           throw err;
         }
@@ -113,9 +112,7 @@ const notInReplicaSet = async (db: Db, pods: V1Pod[]): Promise<void> => {
   }
 };
 
-const invalidReplicaSet = async (db: Db, pods: V1Pod[], status: ReplSetStatus): Promise<void> => {
-  const members = status.members ?? [];
-
+const invalidReplicaSet = async (db: Db, pods: V1Pod[]): Promise<void> => {
   log.info("Invalid replica set");
   if (!podElection(pods)) {
     log.info("Didn't win pod election, returning");
@@ -123,8 +120,8 @@ const invalidReplicaSet = async (db: Db, pods: V1Pod[], status: ReplSetStatus): 
   }
 
   log.info("Won pod election, forcing reinit");
-  const addrToAdd = addrToAddLoop(pods, members);
-  const addrToRemove = addrToRemoveLoop(members);
+  const addrToAdd = addrToAddLoop(pods, []);
+  const addrToRemove = addrToRemoveLoop([]);
 
   await addNewReplSetMembers(db, addrToAdd, addrToRemove, true);
 };
