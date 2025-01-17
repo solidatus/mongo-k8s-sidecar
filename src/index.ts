@@ -15,4 +15,4 @@ const main = async (): Promise<void> => {
     await sleep(config.mongo.loopSleepSeconds * 1000);
   }
 };
-main().catch((err) => log.error(err));
+main().catch((err) => log.error("Error in main func", err));

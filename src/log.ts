@@ -1,15 +1,13 @@
 import chalk from "chalk";
 
-type OptionalParam = boolean | number | object | string;
-
 const getDate = (): string => new Date().toISOString();
 
 const log = {
-  error: (msg: string, ...optionalParams: OptionalParam[]) =>
-    console.trace(`[${getDate()}] ${chalk.red("ERROR")}: ${msg}`, ...optionalParams),
-  info: (msg: string, ...optionalParams: OptionalParam[]) =>
+  error: (msg: string, ...optionalParams: unknown[]) =>
+    console.error(`[${getDate()}] ${chalk.red("ERROR")}: ${msg}`, ...optionalParams),
+  info: (msg: string, ...optionalParams: unknown[]) =>
     console.log(`[${getDate()}] ${chalk.green("INFO")}: ${msg}`, ...optionalParams),
-  warn: (msg: string, ...optionalParams: OptionalParam[]) =>
+  warn: (msg: string, ...optionalParams: unknown[]) =>
     console.warn(`[${getDate()}] ${chalk.yellow("WARN")}: ${msg}`, ...optionalParams),
 };
 
