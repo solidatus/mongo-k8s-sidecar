@@ -5,6 +5,8 @@ import { log } from "./log";
 import { ReplSetConfig, ReplSetStatus } from "./types";
 import { range, sleep } from "./utils";
 
+let mongoClient: MongoClient;
+
 const getDb = async (host: string = "127.0.0.1"): Promise<Db> => {
   const mongoConfig = config.mongo;
   const authConfig = mongoConfig.auth;
@@ -17,7 +19,15 @@ const getDb = async (host: string = "127.0.0.1"): Promise<Db> => {
     uri += `/${authConfig.database}`;
   }
 
-  const client = new MongoClient(uri, {
+  if (mongoClient) {
+    try {
+      return mongoClient.db();
+    } catch {
+      mongoClient.close();
+    }
+  }
+
+  mongoClient = new MongoClient(uri, {
     directConnection: true,
     tls: mongoConfig.tls,
     tlsAllowInvalidCertificates: mongoConfig.tlsAllowInvalidCertificates,
@@ -25,10 +35,9 @@ const getDb = async (host: string = "127.0.0.1"): Promise<Db> => {
   });
 
   // test the connection
-  await client.connect();
+  await mongoClient.connect();
 
-  const db = client.db();
-  return db;
+  return mongoClient.db();
 };
 
 const replSetGetConfig = async (db: Db): Promise<ReplSetConfig> => {
