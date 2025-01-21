@@ -96,7 +96,7 @@ const addNewMembers = (rsConfig: ReplSetConfig, addrs: string[]): void => {
 
   for (const addr of addrs) {
     // search for the next available member ID (max 255)
-    newMemberId = range(newMemberId, 256).find((i) => !memberIds.includes(i)) || -1;
+    newMemberId = range(newMemberId, 256).find((i) => !memberIds.includes(i)) ?? -1;
     if (newMemberId === -1) {
       throw new Error("No available member ID");
     }
