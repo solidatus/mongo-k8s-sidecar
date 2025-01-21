@@ -5,7 +5,17 @@ import { log } from "./log";
 import { ReplSetConfig, ReplSetStatus } from "./types";
 import { range, sleep } from "./utils";
 
+let mongoClient: MongoClient | null = null;
+
 const getDb = async (host: string = "127.0.0.1"): Promise<Db> => {
+  if (mongoClient === null) {
+    mongoClient = await createMongoClient(host);
+  }
+
+  return mongoClient.db();
+};
+
+const createMongoClient = async (host: string): Promise<MongoClient> => {
   const mongoConfig = config.mongo;
   const authConfig = mongoConfig.auth;
 
@@ -17,7 +27,8 @@ const getDb = async (host: string = "127.0.0.1"): Promise<Db> => {
     uri += `/${authConfig.database}`;
   }
 
-  const client = new MongoClient(uri, {
+  const mongoClient = new MongoClient(uri, {
+    appName: "mongo-k8s-sidecar",
     directConnection: true,
     tls: mongoConfig.tls,
     tlsAllowInvalidCertificates: mongoConfig.tlsAllowInvalidCertificates,
@@ -25,10 +36,10 @@ const getDb = async (host: string = "127.0.0.1"): Promise<Db> => {
   });
 
   // test the connection
-  await client.connect();
+  log.info("Connecting to MongoDB");
+  await mongoClient.connect();
 
-  const db = client.db();
-  return db;
+  return mongoClient;
 };
 
 const replSetGetConfig = async (db: Db): Promise<ReplSetConfig> => {
