@@ -11,8 +11,7 @@
     "format:check": "prettier . --check",
     "build": "tsc",
     "watch": "tsc -w",
-    "clean": "rimraf dist/*",
-    "start": "forever ./dist/index.js"
+    "clean": "rimraf dist/*"
   },
   "keywords": [
     "kubernetes",
@@ -29,7 +28,6 @@
   "dependencies": {
     "@kubernetes/client-node": "^0.22.2",
     "chalk": "^4.1.2",
-    "forever": "^4.0.3",
     "ip": "^2.0.1",
     "mongodb": "^6.14.0"
   },
