@@ -27,7 +27,7 @@
   "author": "Charles Vallance <vallance.charles@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@kubernetes/client-node": "^0.22.2",
+    "@kubernetes/client-node": "^1.0.0",
     "chalk": "^4.1.2",
     "forever": "^4.0.3",
     "ip": "^2.0.1",
