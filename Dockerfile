@@ -13,22 +13,22 @@ COPY . .
 # This will create the dist folder with the compiled code
 RUN npm run build
 
-RUN rm -rf node_modules
-# This will create the node_modules folder with only the production dependencies
-RUN npm install --omit=dev
-
 FROM node:22-alpine
 
 WORKDIR /app
 RUN adduser -S -u 3737 -G root -g "solidatus" solidatus \
     && chown 3737:0 /app/ \
     && chmod 770 /app/ \
-    && mkdir -p /app/node_modules/ /app/dist/ \
-    && chown 3737:0 /app/node_modules/ /app/dist/ \
-    && chmod 770 /app/node_modules/ /app/dist/
+    && mkdir -p /app/dist/ \
+    && chown 3737:0 /app/dist/ \
+    && chmod 770 /app/dist/
 
 COPY --chown=3737:0 --chmod=770 package.json package-lock.json /app/
-COPY --from=build --chown=3737:0 --chmod=770 /app/node_modules/ /app/node_modules/
+
+RUN npm install --omit=dev \
+    && chown -R 3737:0 /app/node_modules/ \
+    && chmod -R 770 /app/node_modules/
+
 COPY --from=build --chown=3737:0 --chmod=770 /app/dist/ /app/dist/
 
 USER 3737:0
