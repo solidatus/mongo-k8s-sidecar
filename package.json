@@ -1,6 +1,6 @@
 {
   "name": "mongo-k8s-sidecar",
-  "version": "0.13.0",
+  "version": "0.13.2",
   "description": "Kubernetes sidecar for MongoDB",
   "main": "src/index.ts",
   "type": "commonjs",
@@ -10,8 +10,7 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "build": "tsc",
-    "watch": "tsc -w",
-    "clean": "rimraf dist/*"
+    "watch": "tsc -w"
   },
   "keywords": [
     "kubernetes",
@@ -39,7 +38,6 @@
     "eslint-plugin-perfectionist": "^4.10.1",
     "eslint-plugin-prettier": "^5.2.3",
     "prettier": "3.5.3",
-    "rimraf": "^6.0.1",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.26.1"
   }
