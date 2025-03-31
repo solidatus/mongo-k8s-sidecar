@@ -69,4 +69,3 @@ releaseId=$(echo $releaseJson | grep -o '"id": [[:digit:]]*' | head -1 | sed 's/
 echo "Created release with ID: $releaseId, name: $NEW_VERSION"
 
 echo "Release complete."
-
