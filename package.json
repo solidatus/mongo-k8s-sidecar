@@ -4,6 +4,8 @@
   "description": "Kubernetes sidecar for MongoDB",
   "main": "src/index.ts",
   "type": "commonjs",
+  "author": "Solidatus",
+  "license": "MIT",
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix",
@@ -12,18 +14,6 @@
     "build": "tsc",
     "watch": "tsc -w"
   },
-  "keywords": [
-    "kubernetes",
-    "k8s",
-    "mongo",
-    "mongodb",
-    "sidecar",
-    "docker",
-    "replica",
-    "replicaset"
-  ],
-  "author": "Charles Vallance <vallance.charles@gmail.com>",
-  "license": "MIT",
   "dependencies": {
     "@kubernetes/client-node": "^0.22.2",
     "ip": "^2.0.1",
