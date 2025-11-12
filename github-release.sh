@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -eux
 
 GITHUB_BEARER_TOKEN=$GITHUB_PAT
 GITHUB_REPOSITORY_NAME=$GITHUB_REPOSITORY_NAME
@@ -13,6 +13,7 @@ latestReleaseResponse=$(curl -sS \
     -H "Accept: application/vnd.github+json" \
     -H "Authorization: Bearer $GITHUB_BEARER_TOKEN" \
     https://api.github.com/repos/solidatus/$GITHUB_REPOSITORY_NAME/releases/latest)
+echo $latestReleaseResponse
 
 if [[ ! "$latestReleaseResponse" =~ "\"status\": \"404\"" ]]; then
     echo "Found latest release."
