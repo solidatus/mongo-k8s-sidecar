@@ -17,7 +17,7 @@
   "dependencies": {
     "@kubernetes/client-node": "^0.22.3",
     "ip": "^2.0.1",
-    "mongodb": "^6.20.0"
+    "mongodb": "^7.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
