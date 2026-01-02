@@ -1,9 +1,9 @@
 {
   "name": "mongo-k8s-sidecar",
-  "version": "0.15.1",
+  "version": "0.16.0",
   "description": "Kubernetes sidecar for MongoDB",
   "main": "src/index.ts",
-  "type": "commonjs",
+  "type": "module",
   "author": "Solidatus",
   "license": "MIT",
   "scripts": {
@@ -14,8 +14,11 @@
     "build": "tsc",
     "watch": "tsc -w"
   },
+  "engines": {
+    "node": "^24.0.0"
+  },
   "dependencies": {
-    "@kubernetes/client-node": "^0.22.3",
+    "@kubernetes/client-node": "^1.4.0",
     "ip": "^2.0.1",
     "mongodb": "^7.0.0"
   },

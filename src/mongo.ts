@@ -1,9 +1,9 @@
 import { Db, MongoClient } from "mongodb";
 
-import { config } from "./config";
-import { log } from "./log";
-import { ReplSetConfig, ReplSetStatus } from "./types";
-import { range, sleep } from "./utils";
+import { config } from "./config.js";
+import { log } from "./log.js";
+import { ReplSetConfig, ReplSetStatus } from "./types.js";
+import { range, sleep } from "./utils.js";
 
 let mongoClient: MongoClient | null = null;
 

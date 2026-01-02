@@ -2,12 +2,12 @@ import { V1Pod } from "@kubernetes/client-node";
 import ip from "ip";
 import { Db, MongoServerError } from "mongodb";
 
-import { config } from "./config";
-import { getMongoPods } from "./k8s";
-import { log } from "./log";
-import { addNewReplSetMembers, getDb, initReplSet, isInReplSet, replSetGetStatus } from "./mongo";
-import { ReplSetStatus, ReplSetStatusMember } from "./types";
-import { getLocalIp, getPodFqdn, getPodIp } from "./utils";
+import { config } from "./config.js";
+import { getMongoPods } from "./k8s.js";
+import { log } from "./log.js";
+import { addNewReplSetMembers, getDb, initReplSet, isInReplSet, replSetGetStatus } from "./mongo.js";
+import { ReplSetStatus, ReplSetStatusMember } from "./types.js";
+import { getLocalIp, getPodFqdn, getPodIp } from "./utils.js";
 
 let hostIp: string | undefined;
 let hostIpAndPort: string | undefined;
