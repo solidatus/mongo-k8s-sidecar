@@ -1,5 +1,3 @@
-import { V1Pod } from "@kubernetes/client-node";
-import ip from "ip";
 import { Db, MongoServerError } from "mongodb";
 
 import { config } from "./config.js";
@@ -8,6 +6,8 @@ import { log } from "./log.js";
 import { addNewReplSetMembers, getDb, initReplSet, isInReplSet, replSetGetStatus } from "./mongo.js";
 import { ReplSetStatus, ReplSetStatusMember } from "./types.js";
 import { getLocalIp, getPodFqdn, getPodIp } from "./utils.js";
+
+import type { V1Pod } from "@kubernetes/client-node";
 
 let hostIp: string | undefined;
 let hostIpAndPort: string | undefined;
@@ -133,7 +133,9 @@ const podElection = (pods: V1Pod[]): boolean => {
     if (!aIp || !bIp) {
       return 0;
     }
-    return ip.toLong(aIp) - ip.toLong(bIp);
+    // String sorting IP addresses doesn't provide a correct sort order but does provide a consistent sort order!
+    // And that's all we need to consistently elect the same pod
+    return aIp.localeCompare(bIp);
   });
 
   return pods[0].status?.podIP === hostIp;
