@@ -1,8 +1,8 @@
-import packageJson from "../package.json";
-import { config } from "./config";
-import { log } from "./log";
-import { sleep } from "./utils";
-import { init, workloop } from "./worker";
+import packageJson from "../package.json" with { type: "json" };
+import { config } from "./config.js";
+import { log } from "./log.js";
+import { sleep } from "./utils.js";
+import { init, workloop } from "./worker.js";
 
 const main = async (): Promise<void> => {
   log.info(`Starting mongo-k8s-sidecar @ ${packageJson.version}`);
