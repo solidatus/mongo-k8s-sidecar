@@ -1,7 +1,8 @@
-import { V1Pod } from "@kubernetes/client-node";
 import os from "os";
 
 import { config } from "./config.js";
+
+import type { V1Pod } from "@kubernetes/client-node";
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
