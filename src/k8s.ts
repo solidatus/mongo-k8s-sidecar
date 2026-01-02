@@ -1,6 +1,6 @@
 import { CoreV1Api, KubeConfig } from "@kubernetes/client-node";
 
-import { config } from "./config";
+import { config } from "./config.js";
 
 import type { Cluster, V1Pod } from "@kubernetes/client-node";
 
@@ -20,16 +20,12 @@ const k8sApi = kc.makeApiClient(CoreV1Api);
 
 const getMongoPods = async (): Promise<V1Pod[]> => {
   const kubeConfig = config.kube;
-  const res = await k8sApi.listNamespacedPod(
-    kubeConfig.namespace,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    kubeConfig.labelSelector,
-  );
+  const podList = await k8sApi.listNamespacedPod({
+    labelSelector: kubeConfig.labelSelector,
+    namespace: kubeConfig.namespace,
+  });
 
-  return res.body.items;
+  return podList.items;
 };
 
 export { getMongoPods };
