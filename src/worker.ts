@@ -127,18 +127,13 @@ const invalidReplicaSet = async (db: Db, pods: V1Pod[]): Promise<void> => {
 };
 
 const podElection = (pods: V1Pod[]): boolean => {
-  pods.sort((a, b) => {
-    const aIp = a.status?.podIP;
-    const bIp = b.status?.podIP;
-    if (!aIp || !bIp) {
-      return 0;
-    }
-    // String sorting IP addresses doesn't provide a correct sort order but does provide a consistent sort order!
-    // And that's all we need to consistently elect the same pod
-    return aIp.localeCompare(bIp);
-  });
+  const winnerPodIp = pods
+    .map((p) => p.status?.podIP) // Election is based on pod IP addresses
+    .filter((ip): ip is string => !!ip) // Pods without an IP address can't be elected
+    .sort() // String sorting IP addresses doesn't provide a correct sort order but does provide a consistent sort order! And that's all we need to consistently elect the same pod
+    .at(0); // The first pod in the sorted list is the winner (if any!)
 
-  return pods[0].status?.podIP === hostIp;
+  return winnerPodIp === hostIp; // Returns true if we are the winning pod
 };
 
 const addrToAddLoop = (pods: V1Pod[], members: ReplSetStatusMember[]): string[] => {
