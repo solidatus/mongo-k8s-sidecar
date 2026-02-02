@@ -23,13 +23,13 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
-    "@types/node": "^24.10.4",
+    "@types/node": "^24.10.9",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-perfectionist": "^5.2.0",
-    "eslint-plugin-prettier": "^5.5.4",
-    "prettier": "3.7.4",
+    "eslint-plugin-perfectionist": "^5.4.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "prettier": "3.8.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.51.0"
+    "typescript-eslint": "^8.54.0"
   }
 }
