@@ -22,7 +22,7 @@
     "mongodb": "^7.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^10.0.1",
     "@types/node": "^24.10.9",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
