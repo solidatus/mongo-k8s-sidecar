@@ -19,3 +19,9 @@ updates:
     ignore:
       - dependency-name: "@types/node"
         versions: [">= 25.0.0"]
+      # SOL-18791 Upgrade to ESLint v10
+      - dependency-name: "@eslint/js"
+        versions: [">= 10.0.0"]
+      # SOL-18791 Upgrade to ESLint v10
+      - dependency-name: "eslint"
+        versions: [">= 10.0.0"]
