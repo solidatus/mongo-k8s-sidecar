@@ -25,3 +25,6 @@ updates:
       # SOL-18791 Upgrade to ESLint v10
       - dependency-name: "eslint"
         versions: [">= 10.0.0"]
+      # SOL-19173 Upgrade to TypeScript 6.x
+      - dependency-name: "typescript"
+        versions: [">= 6.0.0"]
