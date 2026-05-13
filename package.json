@@ -7,11 +7,12 @@
   "author": "Solidatus",
   "license": "MIT",
   "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc",
     "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "build": "tsc",
     "watch": "tsc -w"
   },
   "engines": {
