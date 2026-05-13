@@ -1,5 +1,13 @@
 # Mongo Kubernetes Replica Set Sidecar
 
+## Publish Guide
+
+1. PR `master` into `stable`. PR TC build needs approval to start.
+1. TC build on new `stable` commit will be auto-triggered. Will publish to dev, prod & external repos.
+1. The `stable` TC build will also auto-patch-bump, so ideally merge back `stable` into `master`.
+
+---
+
 This project is as a PoC to setup a mongo replica set using Kubernetes. It should handle resizing of any type and be
 resilient to the various conditions both mongo and kubernetes can find themselves in.
 
