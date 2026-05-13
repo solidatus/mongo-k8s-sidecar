@@ -12,7 +12,7 @@ import type { V1Pod } from "@kubernetes/client-node";
 let hostIp: string | undefined;
 let hostIpAndPort: string | undefined;
 
-const init = async (): Promise<void> => {
+const init = (): void => {
   hostIp = getLocalIp();
   if (!hostIp) {
     throw new Error("could not find local ip");

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const getDate = (): string => new Date().toISOString();
 
 const log = {
