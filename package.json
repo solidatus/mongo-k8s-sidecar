@@ -15,7 +15,8 @@
     "watch": "tsc -w"
   },
   "engines": {
-    "node": "^24.0.0"
+    "node": "^24.0.0",
+    "node-comment": "Keep in sync with .nvmrc & the global npm update (major version) in Dockerfile"
   },
   "dependencies": {
     "@kubernetes/client-node": "^1.4.0",

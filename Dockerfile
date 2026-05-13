@@ -25,7 +25,9 @@ RUN adduser -S -u 3737 -G root -g "solidatus" solidatus \
 
 COPY --chown=3737:0 --chmod=770 package.json package-lock.json /app/
 
-RUN npm clean-install --omit=dev \
+# Node doesn't always ship with latest npm, so update it. Keep major version in sync with that of Node in use.
+RUN npm install --global npm@11 \
+    && npm clean-install --omit=dev \
     && chown -R 3737:0 /app/node_modules/ \
     && chmod -R 770 /app/node_modules/
 
