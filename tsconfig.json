@@ -1,25 +1,34 @@
 {
+  /* Check out https://node.green & https://github.com/tsconfig/bases for some good info */
+  /* Visit https://aka.ms/tsconfig.json to read more about this file */
+
+  /* Include all TS files */
+  "include": ["./**/*.ts"],
   "compilerOptions": {
-    "target": "ESNext",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-
-    "module": "NodeNext",
     "rootDir": "./src",
-    "moduleResolution": "node16",
-    "types": ["node"],
-
-    "inlineSourceMap": true,
     "outDir": "dist",
 
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
+    /* Follow https://github.com/tsconfig/bases/blob/main/bases/node24.json */
+    "target": "es2024",
+    /* Follow https://github.com/tsconfig/bases/blob/main/bases/node24.json but minimise to what we acc use */
+    "lib": ["es2024"],
+    /* Follow https://github.com/tsconfig/bases/blob/main/bases/node24.json */
+    "module": "nodenext",
+    /* We're on modern Node & TS so use this AI recommended module resolution */
+    "moduleResolution": "nodenext",
+    /* Follow TS v6 guide */
+    "types": ["node"],
 
-    "strict": true,
-
+    /* Follow https://github.com/tsconfig/bases/blob/main/bases/node24.json */
     "skipLibCheck": true,
-    "resolveJsonModule": true
-  },
-  "exclude": ["node_modules", "dist"]
+
+    /* Include 'undefined' in index signature results so callers have to check */
+    "noUncheckedIndexedAccess": true,
+    /* AI recommended, seems good */
+    "noImplicitReturns": true,
+    /* AI recommended, seems good */
+    "noFallthroughCasesInSwitch": true,
+    /* AI recommended, seems good */
+    "noImplicitOverride": true,
+  }
 }
