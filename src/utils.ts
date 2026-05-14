@@ -16,7 +16,7 @@ const getLocalIp = (): string | undefined => {
       return iface.address;
     }
   }
-  return;
+  return undefined;
 };
 
 const getHostname = (): string => os.hostname();
