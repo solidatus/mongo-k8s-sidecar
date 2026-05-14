@@ -19,6 +19,3 @@ updates:
     ignore:
       - dependency-name: "@types/node"
         versions: [">= 25.0.0"]
-      # SOL-19173 Upgrade to TypeScript 6.x
-      - dependency-name: "typescript"
-        versions: [">= 6.0.0"]

@@ -68,7 +68,7 @@ const initReplSet = async (db: Db, host: string): Promise<void> => {
   log.info("initial rsConfig", rsConfig);
 
   rsConfig.configsvr = config.mongo.isConfigSvr;
-  rsConfig.members[0].host = host;
+  rsConfig.members[0]!.host = host;
 
   const retryTimes = 20;
   const sleepInterval = 500;

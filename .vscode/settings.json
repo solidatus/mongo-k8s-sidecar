@@ -2,6 +2,8 @@
     "cSpell.words": [
         "adduser",
         "configsvr",
-        "Reconfig"
-    ]
+        "Reconfig",
+        "workloop"
+    ],
+    "typescript.tsdk": "node_modules/typescript/lib"
 }

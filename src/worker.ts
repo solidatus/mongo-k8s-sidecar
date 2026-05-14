@@ -138,7 +138,7 @@ const podElection = (pods: V1Pod[]): boolean => {
     return aIp.localeCompare(bIp);
   });
 
-  return pods[0].status?.podIP === hostIp;
+  return pods[0]?.status?.podIP === hostIp;
 };
 
 const addrToAddLoop = (pods: V1Pod[], members: ReplSetStatusMember[]): string[] => {
