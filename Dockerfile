@@ -25,11 +25,13 @@ RUN adduser -S -u 3737 -G root -g "solidatus" solidatus \
 
 COPY --chown=3737:0 --chmod=770 package.json package-lock.json /app/
 
-# Node doesn't always ship with latest npm, so update it. Keep major version in sync with that of Node in use.
-RUN npm install --global npm@11 \
-    && npm clean-install --omit=dev \
+# npm is only needed to install the runtime dependencies; the entrypoint is plain node. Remove it afterwards so
+# vulnerability scanners don't flag the packages npm bundles in its own node_modules (brace-expansion, tar, undici).
+# The npm shipped with the base image is sufficient for this, so there is no need to install a newer one.
+RUN npm clean-install --omit=dev \
     && chown -R 3737:0 /app/node_modules/ \
-    && chmod -R 770 /app/node_modules/
+    && chmod -R 770 /app/node_modules/ \
+    && rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx /root/.npm
 
 COPY --from=build --chown=3737:0 --chmod=770 /app/dist/ /app/dist/
 
