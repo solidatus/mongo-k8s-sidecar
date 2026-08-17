@@ -6,7 +6,7 @@ import { init, workloop } from "./worker.js";
 
 const main = async (): Promise<void> => {
   log.info(`Starting mongo-k8s-sidecar @ ${packageJson.version}`);
-  await init();
+  init();
 
   while (true) {
     await workloop();

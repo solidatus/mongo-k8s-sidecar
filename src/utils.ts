@@ -16,6 +16,7 @@ const getLocalIp = (): string | undefined => {
       return iface.address;
     }
   }
+  return undefined;
 };
 
 const getHostname = (): string => os.hostname();
@@ -24,12 +25,14 @@ const getPodIp = (pod: V1Pod): string | undefined => {
   return pod.status?.podIP ? `${pod.status?.podIP}:${config.mongo.port}` : undefined;
 };
 
-const getPodFqdn = (pod: V1Pod): string | undefined => {
-  const hostname = pod.spec?.hostname ?? pod.metadata?.name;
+const getPodHostname = (pod: undefined | V1Pod): string | undefined => pod?.spec?.hostname ?? pod?.metadata?.name;
+
+const getPodFqdn = (pod: undefined | V1Pod): string | undefined => {
+  const hostname = getPodHostname(pod);
 
   return hostname ?
       `${hostname}.${config.kube.mongoServiceName}.${config.kube.namespace}.svc.${config.kube.clusterDomain}:${config.mongo.port}`
     : undefined;
 };
 
-export { getHostname, getLocalIp, getPodFqdn, getPodIp, range, sleep };
+export { getHostname, getLocalIp, getPodFqdn, getPodHostname, getPodIp, range, sleep };

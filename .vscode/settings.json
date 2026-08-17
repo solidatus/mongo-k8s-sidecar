@@ -1,7 +1,4 @@
 {
-    "cSpell.words": [
-        "adduser",
-        "configsvr",
-        "Reconfig"
-    ]
+  "cSpell.words": ["adduser", "configsvr", "Reconfig", "workloop"],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

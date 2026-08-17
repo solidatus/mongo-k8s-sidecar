@@ -1,0 +1,8 @@
+{
+  /* What actually ships: src only - tests live in ./tests, tooling config in the root */
+  "extends": "./tsconfig.json",
+  "include": ["./src/**/*.ts"],
+  "compilerOptions": {
+    "rootDir": "./src"
+  }
+}

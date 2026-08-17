@@ -11,6 +11,7 @@ interface KubeConfig {
   labelSelector: string;
   mongoServiceName: string;
   namespace: string;
+  normalizeMemberHosts: boolean;
 }
 
 interface MongoAuthConfig {
@@ -31,7 +32,9 @@ interface MongoConfig {
 
   isConfigSvr: boolean;
 
+  forceReconfigGraceSeconds: number;
   loopSleepSeconds: number;
+  startupGraceSeconds: number;
   unhealthySeconds: number;
 }
 
@@ -58,6 +61,13 @@ const isConfigRS = (): boolean => {
   return configSvrBool;
 };
 
+const normalizeMemberHosts = (): boolean => {
+  const normalize = (process.env.KUBE_NORMALIZE_MEMBER_HOSTS || "").trim().toLowerCase();
+
+  // Defaults on, so it's the off switch we have to recognise - in the same spellings isConfigRS accepts
+  return !/^(?:n|no|false|0)$/i.test(normalize);
+};
+
 const loadConfig = (): Config => {
   return {
     kube: {
@@ -66,13 +76,16 @@ const loadConfig = (): Config => {
       labelSelector: process.env.MONGO_SIDECAR_POD_LABELS || "app=solidatus-db",
       mongoServiceName: process.env.KUBE_MONGO_SERVICE_NAME || "db",
       namespace: process.env.KUBE_NAMESPACE || "default",
+      normalizeMemberHosts: normalizeMemberHosts(),
     },
     mongo: {
       auth: loadMongoAuthConfig(),
+      forceReconfigGraceSeconds: parseInt(process.env.MONGODB_FORCE_RECONFIG_GRACE_SECONDS || "30"),
       isConfigSvr: isConfigRS(),
 
       loopSleepSeconds: parseInt(process.env.MONGODB_LOOP_SLEEP_SECONDS || "5"),
       port: parseInt(process.env.MONGODB_PORT || "27017"),
+      startupGraceSeconds: parseInt(process.env.MONGODB_STARTUP_GRACE_SECONDS || "300"),
       tls: process.env.MONGODB_TLS === "true",
 
       tlsAllowInvalidCertificates: process.env.MONGODB_TLS_ALLOW_INVALID_CERTIFICATES === "true",
