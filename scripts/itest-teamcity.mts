@@ -35,16 +35,18 @@ const dockerQuietly = (args: string[]): void => {
 // A container left behind by a killed run would make --name collide
 dockerQuietly(["rm", "-f", CONTAINER]);
 
-const testStatus = docker([
-  ...COMPOSE,
-  "run",
-  "--build",
-  "--name",
-  CONTAINER,
-  "-e",
-  "VITEST_ARGS=--reporter=default --reporter=junit",
-  "tests",
-]);
+// The image is built as its own step, before anything brings the stack up, because `run --build` builds
+// with the dependencies already started - and by then the rs network exists with its pinned
+// 10.123.45.0/24 subnet. The build shares the host's network namespace (see build.network in the compose
+// file), so that route is in scope while npm talks to the registry, and on CI it swallowed the traffic:
+// npm resolved the registry fine and then sat in a read until ETIMEDOUT. Building first keeps the two
+// apart. Note the stack's own teardown at the end is what makes the *next* run's build safe too.
+const buildStatus = docker([...COMPOSE, "build", "tests"]);
+
+const testStatus =
+  buildStatus === 0 ?
+    docker([...COMPOSE, "run", "--name", CONTAINER, "-e", "VITEST_ARGS=--reporter=default --reporter=junit", "tests"])
+  : buildStatus;
 
 // A run that died before vitest wrote anything has no report to copy, and that must not mask the test
 // result
