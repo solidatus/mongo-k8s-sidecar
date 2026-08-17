@@ -1,5 +1,11 @@
-// Runs the integration harness the way CI needs it: junit reporter on, and the report pulled back out
-// of the container into the checkout so TeamCity can pick it up.
+// Runs the integration harness the way CI needs it: junit reporter on, the report pulled back out of the
+// container into the checkout so TeamCity can pick it up, and the compose stack torn down afterwards -
+// all under one exit code.
+//
+// The teardown lives here rather than as a second line in the TeamCity build step on purpose. A bash step
+// without `set -e` reports the status of its *last* command, so a "run tests; tear down" step is always
+// green: the teardown succeeds even when the tests never ran. Everything below is best-effort except the
+// test run itself, whose status is the only thing this script exits with.
 //
 // The report cannot simply land in a bind-mounted directory. On a containerised build agent the docker
 // daemon does not share the agent's filesystem, so a bind mount of the checkout silently resolves to an
@@ -15,26 +21,37 @@ import { mkdirSync } from "node:fs";
 const COMPOSE = ["compose", "-f", "docker-compose.itest.yml"];
 const CONTAINER = "mongo-k8s-sidecar-itest-runner";
 
-const docker = (args: string[], { check = true }: { check?: boolean } = {}): number => {
+const docker = (args: string[]): number => {
   const { status } = spawnSync("docker", args, { stdio: "inherit" });
-  if (check && status !== 0) {
-    process.exit(status ?? 1);
-  }
   return status ?? 1;
 };
 
+// Housekeeping whose failure says nothing about the tests: "no such container" on a clean agent is the
+// normal case, so its noise stays out of the build log
+const dockerQuietly = (args: string[]): void => {
+  spawnSync("docker", args, { stdio: "ignore" });
+};
+
 // A container left behind by a killed run would make --name collide
-docker(["rm", "-f", CONTAINER], { check: false });
+dockerQuietly(["rm", "-f", CONTAINER]);
 
-const testStatus = docker(
-  [...COMPOSE, "run", "--build", "--name", CONTAINER, "-e", "VITEST_ARGS=--reporter=default --reporter=junit", "tests"],
-  { check: false },
-);
+const testStatus = docker([
+  ...COMPOSE,
+  "run",
+  "--build",
+  "--name",
+  CONTAINER,
+  "-e",
+  "VITEST_ARGS=--reporter=default --reporter=junit",
+  "tests",
+]);
 
-// Best-effort: a run that died before vitest wrote anything has no report, and that must not mask the
-// test result
+// A run that died before vitest wrote anything has no report to copy, and that must not mask the test
+// result
 mkdirSync("reports", { recursive: true });
-docker(["cp", `${CONTAINER}:/app/reports/.`, "reports"], { check: false });
-docker(["rm", "-f", CONTAINER], { check: false });
+dockerQuietly(["cp", `${CONTAINER}:/app/reports/.`, "reports"]);
+dockerQuietly(["rm", "-f", CONTAINER]);
+
+docker([...COMPOSE, "down", "-v", "--remove-orphans"]);
 
 process.exit(testStatus);
