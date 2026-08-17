@@ -1,6 +1,6 @@
 {
   "name": "mongo-k8s-sidecar",
-  "version": "0.17.5",
+  "version": "0.18.0",
   "description": "Kubernetes sidecar for MongoDB",
   "main": "src/index.ts",
   "type": "module",
@@ -8,12 +8,16 @@
   "license": "MIT",
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
     "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "watch": "tsc -w"
+    "test": "vitest run",
+    "test-teamcity": "vitest run --reporter=default --reporter=junit",
+    "test:integration": "docker compose -f docker-compose.itest.yml run --rm tests",
+    "test:integration-teamcity": "docker compose -f docker-compose.itest.yml run --rm -e VITEST_ARGS=\"--reporter=default --reporter=junit\" tests",
+    "test:integration:down": "docker compose -f docker-compose.itest.yml down -v --remove-orphans"
   },
   "engines": {
     "node": "^24.0.0",
@@ -32,6 +36,7 @@
     "eslint-plugin-prettier": "^5.5.6",
     "prettier": "3.9.6",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.65.0"
+    "typescript-eslint": "^8.65.0",
+    "vitest": "^4.1.10"
   }
 }

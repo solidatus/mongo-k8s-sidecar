@@ -26,13 +26,17 @@ type ReplSetMemberState =
 /* eslint-enable perfectionist/sort-union-types */
 
 type ReplSetStatus = {
-  members: ReplSetStatusMember[];
+  // A mongod that has been removed from the set still answers replSetGetStatus, but with only a
+  // subset of the fields - members among the ones it leaves out.
+  members?: ReplSetStatusMember[];
+  myState?: number;
   set: string;
 };
 
 type ReplSetStatusMember = {
   _id: number;
   health: number;
+  lastHeartbeatMessage?: string;
   lastHeartbeatRecv?: Date;
   name: string;
   self: boolean;
