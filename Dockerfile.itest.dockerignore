@@ -1,0 +1,7 @@
+# BuildKit prefers <dockerfile>.dockerignore over the root .dockerignore, which excludes tests/ for
+# the production image - the integration image needs them.
+.git/
+node_modules/
+dist/
+example/
+reports/

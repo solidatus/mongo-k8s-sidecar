@@ -75,13 +75,13 @@ services:
         ipv4_address: 10.123.45.12
 
   tests:
-    image: node:24
-    working_dir: /app
-    # Anonymous volume shields the container's node_modules from the host's, which may have been
-    # installed for another platform
+    # The checkout and its node_modules are baked into the image rather than bind-mounted, so the
+    # harness does not care whether the docker daemon shares a filesystem with the client - see
+    # Dockerfile.itest for the full reasoning.
+    build:
+      context: .
+      dockerfile: Dockerfile.itest
     volumes:
-      - .:/app
-      - /app/node_modules
       - killswitch:/killswitch
     network_mode: "service:mongo-0"
     depends_on:
@@ -89,16 +89,9 @@ services:
       - mongo-1
       - mongo-2
     # VITEST_ARGS is how the junit reporter gets switched on, the same way the test-teamcity script
-    # does it for the unit tests - see the test:integration-teamcity script in package.json.
-    #
-    # Any report lands in the bind-mounted checkout, written by root inside the container. Hand it back
-    # to whoever owns the checkout, or a CI agent running as anything but root cannot clean its own
-    # workspace afterwards.
+    # does it for the unit tests. Any report stays inside the container at /app/reports; the
+    # test:integration-teamcity script copies it out with docker cp afterwards.
     command:
       - bash
       - -c
-      - |
-        npm ci && npx vitest run --config vitest.integration.config.mts $$VITEST_ARGS
-        status=$$?
-        chown -R $$(stat -c %u:%g /app) /app/reports 2>/dev/null || true
-        exit $$status
+      - npx vitest run --config vitest.integration.config.mts $$VITEST_ARGS

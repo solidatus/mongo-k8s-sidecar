@@ -15,8 +15,8 @@
     "format:check": "prettier . --check",
     "test": "vitest run",
     "test-teamcity": "vitest run --reporter=default --reporter=junit",
-    "test:integration": "docker compose -f docker-compose.itest.yml run --rm tests",
-    "test:integration-teamcity": "docker compose -f docker-compose.itest.yml run --rm -e VITEST_ARGS=\"--reporter=default --reporter=junit\" tests",
+    "test:integration": "docker compose -f docker-compose.itest.yml run --rm --build tests",
+    "test:integration-teamcity": "node scripts/itest-teamcity.mts",
     "test:integration:down": "docker compose -f docker-compose.itest.yml down -v --remove-orphans"
   },
   "engines": {

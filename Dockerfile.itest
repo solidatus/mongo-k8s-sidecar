@@ -1,0 +1,22 @@
+# Test-runner image for the integration harness - see docker-compose.itest.yml.
+#
+# The checkout is baked into an image rather than bind-mounted, because a bind mount resolves against
+# the docker *daemon's* filesystem, not the client's. On a containerised CI agent (the agent runs in a
+# container with the host's docker socket mounted) the agent's checkout path does not exist on the
+# daemon side, so docker silently creates an empty directory there and mounts that - the tests then
+# fail with npm's "can only install with an existing package-lock.json". Build context travels over
+# the docker socket instead, so this works wherever the daemon lives.
+#
+# tests/ is excluded by the root .dockerignore, which exists for the production image; the COPY of
+# tests/ below is why this build has its own Dockerfile.itest.dockerignore.
+FROM node:24
+
+WORKDIR /app
+
+# Separate layer so a source-only change does not reinstall dependencies
+COPY package.json package-lock.json .npmrc ./
+RUN npm clean-install
+
+COPY tsconfig.json tsconfig.build.json vitest.integration.config.mts ./
+COPY src/ ./src/
+COPY tests/ ./tests/
