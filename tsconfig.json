@@ -2,10 +2,10 @@
   /* Check out https://node.green & https://github.com/tsconfig/bases for some good info */
   /* Visit https://aka.ms/tsconfig.json to read more about this file */
 
-  /* Include all TS files */
-  "include": ["./**/*.ts"],
+  /* Include all TS files, tests & config included, so ESLint can type check them too.
+     The build uses tsconfig.build.json, which drops everything that isn't shipped. */
+  "include": ["./**/*.ts", "./**/*.mts"],
   "compilerOptions": {
-    "rootDir": "./src",
     "outDir": "dist",
 
     /* Follow https://github.com/tsconfig/bases/blob/main/bases/node24.json */
@@ -29,6 +29,6 @@
     /* AI recommended, seems good */
     "noFallthroughCasesInSwitch": true,
     /* AI recommended, seems good */
-    "noImplicitOverride": true,
+    "noImplicitOverride": true
   }
 }

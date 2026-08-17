@@ -1,0 +1,103 @@
+# Integration test harness: three real mongods plus the sidecar under test.
+#
+# The sidecar's world is not just "a mongo" - it connects to its own mongod on 127.0.0.1, identifies
+# itself by its local IP, and writes member hosts as Kubernetes pod FQDNs that every mongod has to be
+# able to resolve. So:
+#   - the test runner shares mongo-0's network namespace (network_mode: service:mongo-0), which is
+#     exactly how the sidecar sits next to mongod in a pod: 127.0.0.1 is mongo-0 and getLocalIp()
+#     returns mongo-0's address
+#   - each mongod carries its pod FQDN as a network alias, so a real replSetReconfig with FQDN hosts
+#     resolves and heartbeats work
+#   - the addresses are static, and mongo-0's is the lowest: the sidecar elects the pod with the
+#     lowest IP to do the work, and the sidecar under test is the one in mongo-0
+#
+# The subnet is pinned but deliberately outside Docker's default pools (172.17-172.31, 192.168.x),
+# which are where an existing network is likely to already sit. Change it if it clashes locally.
+#
+# mongo-2 is the failure-injection node. mongod refuses a remote shutdown command when running
+# without auth ("shutdown must run from localhost"), and the tests have no localhost there - so
+# instead its mongod runs under a wrapper watching a killswitch file on a volume the tests share.
+# Touching the file kills mongod for real, and the wrapper keeps it down well past
+# MONGODB_UNHEALTHY_SECONDS before restarting it, making both the reap and the re-add observable
+# without the tests needing control of the Docker daemon.
+
+networks:
+  rs:
+    ipam:
+      config:
+        - subnet: 10.123.45.0/24
+
+volumes:
+  killswitch:
+
+services:
+  mongo-0:
+    image: mongo:7
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    networks:
+      rs:
+        aliases: ["db-0.db.test-ns.svc.cluster.local"]
+        ipv4_address: 10.123.45.10
+
+  mongo-1:
+    image: mongo:7
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    networks:
+      rs:
+        aliases: ["db-1.db.test-ns.svc.cluster.local"]
+        ipv4_address: 10.123.45.11
+
+  mongo-2:
+    image: mongo:7
+    command:
+      - bash
+      - -c
+      - |
+        rm -f /killswitch/kill
+        while true; do
+          mongod --replSet rs0 --bind_ip_all &
+          mongod_pid=$$!
+          while [ ! -f /killswitch/kill ]; do sleep 0.5; done
+          rm -f /killswitch/kill
+          echo "killswitch tripped, killing mongod for 60s"
+          kill -9 $$mongod_pid
+          wait $$mongod_pid || true
+          # Long enough that mongod noticing (~10s) plus the sidecar's grace period cannot race the
+          # restart, so the reap is deterministic rather than a matter of timing
+          sleep 60
+          echo "restarting mongod"
+        done
+    volumes:
+      - killswitch:/killswitch
+    networks:
+      rs:
+        aliases: ["db-2.db.test-ns.svc.cluster.local"]
+        ipv4_address: 10.123.45.12
+
+  tests:
+    # The checkout and its node_modules are baked into the image rather than bind-mounted, so the
+    # harness does not care whether the docker daemon shares a filesystem with the client - see
+    # Dockerfile.itest for the full reasoning.
+    build:
+      context: .
+      dockerfile: Dockerfile.itest
+      # npm clean-install has to reach registry.npmjs.org from inside the build. The default build
+      # network gave "EAI_AGAIN registry.npmjs.org" on the CI agent - the build container could not
+      # resolve, while the daemon's host could - so the build borrows the host's network namespace and
+      # therefore its resolver. This only applies to the build; the running container still joins
+      # mongo-0's namespace via network_mode below.
+      network: host
+    volumes:
+      - killswitch:/killswitch
+    network_mode: "service:mongo-0"
+    depends_on:
+      - mongo-0
+      - mongo-1
+      - mongo-2
+    # VITEST_ARGS is how the junit reporter gets switched on, the same way the test-teamcity script
+    # does it for the unit tests. Any report stays inside the container at /app/reports; the
+    # test:integration-teamcity script copies it out with docker cp afterwards.
+    command:
+      - bash
+      - -c
+      - npx vitest run --config vitest.integration.config.mts $$VITEST_ARGS
