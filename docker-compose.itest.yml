@@ -81,6 +81,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.itest
+      # npm clean-install has to reach registry.npmjs.org from inside the build. The default build
+      # network gave "EAI_AGAIN registry.npmjs.org" on the CI agent - the build container could not
+      # resolve, while the daemon's host could - so the build borrows the host's network namespace and
+      # therefore its resolver. This only applies to the build; the running container still joins
+      # mongo-0's namespace via network_mode below.
+      network: host
     volumes:
       - killswitch:/killswitch
     network_mode: "service:mongo-0"
