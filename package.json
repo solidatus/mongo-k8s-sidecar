@@ -24,7 +24,7 @@
     "node-comment": "Keep in sync with .nvmrc & the global npm update (major version) in Dockerfile"
   },
   "dependencies": {
-    "@kubernetes/client-node": "^1.4.0",
+    "@kubernetes/client-node": "^2.0.0",
     "mongodb": "^7.6.0"
   },
   "devDependencies": {
