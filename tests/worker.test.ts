@@ -375,8 +375,6 @@ describe("primaryWork", () => {
 
   beforeEach(() => {
     tracker = newUnhealthyTracker();
-    vi.mocked(addNewReplSetMembers).mockClear();
-    vi.mocked(renameReplSetMember).mockClear();
   });
 
   it("reaps a dead member before renaming anything", async () => {
@@ -433,8 +431,6 @@ describe("inReplicaSet", () => {
   let gate: ForceGate;
 
   beforeEach(() => {
-    vi.mocked(addNewReplSetMembers).mockClear();
-    vi.mocked(renameReplSetMember).mockClear();
     gate = newForceGate();
     vi.useRealTimers();
   });
@@ -564,8 +560,6 @@ describe("workloop on an invalid replica set config", () => {
   let consoleError: MockInstance<typeof console.error>;
 
   beforeEach(() => {
-    vi.mocked(addNewReplSetMembers).mockClear();
-    vi.mocked(replSetGetConfig).mockClear();
     vi.mocked(getDb).mockResolvedValue(db);
     vi.mocked(replSetGetStatus).mockRejectedValue(invalidConfig());
     // workloop swallows everything it throws, so an assertion that some reconfig didn't happen would
@@ -653,7 +647,6 @@ describe("workloop on a replica set that does not exist yet", () => {
   };
 
   beforeEach(() => {
-    vi.mocked(initReplSet).mockClear();
     vi.mocked(getDb).mockResolvedValue(db);
     vi.mocked(replSetGetStatus).mockRejectedValue(notYetInitialized());
     vi.mocked(isInReplSet).mockResolvedValue(false);
