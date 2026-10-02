@@ -11,28 +11,29 @@ Releases before 0.18.0: see git history.
 
 ## [0.18.0]
 
+Makes replica set management more reliable: fixes cases where the sidecar could create a second replica set, drop a member or add the same pod twice. After upgrading, existing members are renamed to their pod's stable network name, one per cycle, unless `KUBE_NORMALIZE_MEMBER_HOSTS` is set to `false`.
+
 ### Added
 
-- `KUBE_NORMALIZE_MEMBER_HOSTS` (default `true`): rename existing members onto the pod's stable network ID, one per cycle.
-- `MONGODB_FORCE_RECONFIG_GRACE_SECONDS` (default `30`): how long the set is left to elect a primary of its own before a sidecar writes a forced reconfig, and how long it waits before writing another.
-- `LOG_DEBUG` and a `log.debug` level; full replica set config logged there.
-- Unit tests (`vitest`), run with `npm test`.
+- `KUBE_NORMALIZE_MEMBER_HOSTS` (default `true`): renames existing replica set members to their pod's stable network name, one member per cycle. Set to `false` to leave member host names as they are.
+- `MONGODB_STARTUP_GRACE_SECONDS` (default `300`): how long a member that has never been reachable gets before it is removed, so a mongod still loading a large dataset is not removed while it starts.
+- `MONGODB_FORCE_RECONFIG_GRACE_SECONDS` (default `30`): how long the replica set gets to elect a primary by itself before the sidecar forces a reconfig, and the minimum time between forced reconfigs.
+- `LOG_DEBUG` (default `false`): logs extra detail, including the full replica set config on every reconfig.
 
 ### Changed
 
-- Match a pod against members by pod IP, short name, bare pod name, or mongod's `self` flag - not just exact FQDN. Stops duplicate members.
-- Reap dead members before renaming; skip renames while any removal is pending. Otherwise the two wedge each other.
-- Time the unhealthy grace period from first-seen-unhealthy when `lastHeartbeatRecv` is the epoch, so starting members aren't removed early.
-- Log removals with `lastHeartbeatMessage`, state and unhealthy duration.
-- `replSetReconfig` logs members/version/force after the version increment; full config moved to debug.
-- Build via `tsconfig.build.json`, keeping tests out of `dist`.
+- The image no longer contains `npm`.
+- Clearer logs when a member is removed: the reason, its state and how long it was unhealthy.
+- Shorter reconfig logs. The full config is only logged with `LOG_DEBUG`.
 
 ### Fixed
 
-- Cache one MongoDB client per host instead of one globally. The "is any peer already in a replica set?" guard before `replSetInitiate` was probing the local mongod for every peer, so it always answered no - a pod that came up with an empty data dir and won the IP-sorted election could initiate a competing set alongside the live one.
-- Peer probes get a 3s connect/server-selection timeout and no longer throw, so one unreachable pod can't stall or abort a work loop iteration. Clients dropped after a connection-level failure, since pod IPs get recycled.
-- Crash when `replSetGetStatus` omits `members` (state `REMOVED`); now waits to be re-added.
-- Forced reconfigs (the no-primary path, and error 93 recovery) are fenced by time. `force` skips mongod's config version and term check, so with a sidecar per mongod two pods whose pod lists disagree could both win their own election and write over each other, silently dropping a member. Both paths now wait out `MONGODB_FORCE_RECONFIG_GRACE_SECONDS` before forcing - most no-primary spells are just an election in progress - and won't force again until that long after the last one, which also stops a run of renames becoming a run of forced reconfigs.
-- Replica set bootstrap takes its seed address from the pod that won the election rather than from the first entry of the pod list, which the election used to reorder in place as a side effect.
-- A probe that fails to authenticate (codes 13, 18) now says so and names the credentials to check. It is still reported as in-set, since guessing otherwise splits the brain, but it is our own misconfiguration and it blocks bootstrap until fixed.
-- README settings table matched to the code (`MONGODB_*` names, corrected defaults).
+- A pod that started with an empty data directory could create a second replica set next to the live one.
+- Two sidecars could force reconfigs at the same time and silently drop a member.
+- The same pod could be added to the replica set twice under different host names.
+- One unreachable pod could stall the sidecar for every other pod.
+- The sidecar crashed when its own mongod had been removed from the replica set. It now waits to be added back.
+- Removing dead members and renaming members could block each other.
+- When the sidecar cannot log in to a mongod, it now says so and names the credential settings to check. The replica set is not created until this is fixed.
+- The settings table in the README now matches the real setting names and defaults.
+- Updated dependencies, fixing known vulnerabilities.
