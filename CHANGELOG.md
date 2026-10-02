@@ -3,6 +3,12 @@
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 Releases before 0.18.0: see git history.
 
+## [0.18.1]
+
+### Changed
+
+- Updated dependencies, fixing known vulnerabilities.
+
 ## [0.18.0]
 
 ### Added
