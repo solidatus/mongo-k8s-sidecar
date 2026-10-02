@@ -24,19 +24,19 @@
     "node-comment": "Keep in sync with .nvmrc & the global npm update (major version) in Dockerfile"
   },
   "dependencies": {
-    "@kubernetes/client-node": "^1.4.0",
-    "mongodb": "^7.5.0"
+    "@kubernetes/client-node": "^2.0.0",
+    "mongodb": "^7.6.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/node": "^24.13.3",
-    "eslint": "^10.8.0",
+    "@types/node": "^24.19.0",
+    "eslint": "^10.11.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-perfectionist": "^5.10.0",
+    "eslint-plugin-perfectionist": "^5.12.1",
     "eslint-plugin-prettier": "^5.5.6",
-    "prettier": "3.9.6",
+    "prettier": "3.9.9",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.65.0",
-    "vitest": "^4.1.10"
+    "typescript-eslint": "^8.70.1",
+    "vitest": "^5.0.2"
   }
 }
