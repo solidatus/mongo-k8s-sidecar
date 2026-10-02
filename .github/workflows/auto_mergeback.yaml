@@ -1,0 +1,64 @@
+# This workflow will automatically merge back changes made in stable branch to the master branch.
+# Merging is performed once per day.
+
+name: Auto Merge-back Upstream Branches
+on:
+  # Trigger on push to stable that modified the package.json file (this should only happen when a new release is made!)
+  push:
+    branches:
+      - stable
+    paths:
+      - "package.json"
+  # Trigger at 23:00 every night
+  schedule:
+    - cron: "0 23 * * *"
+  # Allow manual triggering of the workflow
+  workflow_dispatch:
+
+jobs:
+  merge-back:
+    # Merging master into stable for a release also modifies package.json. Wait for the TeamCity version bump
+    # that follows, so we don't merge back mid-release.
+    # Scheduled and manual runs are unaffected (via the first guard on github.event_name!).
+    if: ${{ github.event_name != 'push' || github.event.head_commit.message == 'Node version bump' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Stable -> Master
+        include:
+          - from: stable
+            to: master
+      max-parallel: 1
+    name: Merge ${{ matrix.from }} to ${{ matrix.to }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ matrix.from }}
+          token: ${{ secrets.solpat }}
+          # Number of commits to fetch. 0 indicates all history for all branches and tags.
+          fetch-depth: 0
+
+      - name: attempt direct merge
+        uses: everlytic/branch-merge@1.1.5
+        with:
+          source_ref: ${{ matrix.from }}
+          target_branch: ${{ matrix.to }}
+          commit_message_template: "nightly automated merge from ${{ matrix.from }} to ${{ matrix.to }}"
+          github_token: ${{ secrets.solpat }}
+
+      - if: ${{ failure() }}
+        name: "create branch"
+        run: git push origin ${{ matrix.from }}:${{ matrix.from }}-conflicts
+
+      - if: ${{ failure() }}
+        name: "create PR"
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: ${{ matrix.from }}-conflicts
+          destination_branch: ${{ matrix.to }}
+          pr_title: "failed nightly automatic merge from ${{ matrix.from }} to ${{ matrix.to }} - conflicting"
+          pr_label: "merge-back-conflict"
+          github_token: ${{ github.token }}
